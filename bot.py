@@ -19,7 +19,7 @@ if not TELEGRAM_TOKEN or not GROQ_API_KEY:
     exit(1)
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-MODEL = "llama3-8b-8192"
+MODEL = "llama-3.3-70b-versatile"
 MAX_MESSAGES = 200
 chat_history = {}
 
