@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import json
+import os
 from datetime import datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
@@ -9,18 +10,20 @@ import httpx
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TELEGRAM_TOKEN = "8071436559:AAErsF1rRTs4mFT5XKSyI8laQpodRCjTUoI"
-GROQ_API_KEY = "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"
+# Берем ключи из переменных окружения (Railway/Render)
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+
+if not TELEGRAM_TOKEN or not GROQ_API_KEY:
+    logger.error("Ошибка: Не заданы переменные окружения TELEGRAM_TOKEN или GROQ_API_KEY")
+    exit(1)
+
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-
-# Исправленная модель - более доступная для бесплатных аккаунтов
-MODEL = "llama3-8b-8192"  # Более легкая модель вместо 70b
-
+MODEL = "llama3-8b-8192"
 MAX_MESSAGES = 200
 chat_history = {}
 
 SYSTEM_PROMPT = """Ты - дерзкий, резкий и наглый бот-хулиган. Ты помнишь всё, что говорилось в чате (200 последних сообщений), и используешь это против людей.
-
 Твои характеристики:
 - Отвечай на русском языке
 - Будь резким, дерзким, саркастичным
@@ -30,7 +33,6 @@ SYSTEM_PROMPT = """Ты - дерзкий, резкий и наглый бот-х
 - Если кто-то тупит - скажи об этом прямо
 - Будь уверен в себе, даже если не знаешь ответа
 - Используй эмодзи для выражения пренебрежения 😏🖕
-
 Ты не помощник - ты хулиган, который знает больше всех. Люди приходят к тебе за правдой, а получают правду в лицо."""
 
 def get_chat_history(chat_id):
